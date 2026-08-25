@@ -41,15 +41,25 @@ Opens a device-auth flow: visit the printed URL, enter the code, confirm on
 your Yandex account. Prints an `access_token` good for ~1 year. **Don't
 commit it anywhere** — it grants full account access.
 
-### 2. Deploy to Vercel
+### 2. Set the runtime secret on Vercel
 
 ```
-vercel link
 vercel env add YM_TOKEN production   # paste the token from step 1
-vercel deploy --prod
 ```
 
-### 3. Embed in your README
+(One-time; only needs redoing if the token is rotated.)
+
+### 3. Deploy
+
+Deploys run via GitHub Actions (`.github/workflows/deploy.yml`) on every push
+to `main`, using `vercel pull` → `vercel build --prod` → `vercel deploy
+--prebuilt --prod`. The workflow needs three repo secrets — `VERCEL_TOKEN`
+(from https://vercel.com/account/tokens), `VERCEL_ORG_ID`, and
+`VERCEL_PROJECT_ID` (both from `.vercel/project.json` after `vercel link`).
+
+To deploy manually instead: `vercel deploy --prod`.
+
+### 4. Embed in your README
 
 ```html
 <img src="https://<your-deployment>.vercel.app/api/nowplaying" alt="Yandex Music now playing" />
