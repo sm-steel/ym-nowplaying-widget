@@ -1,9 +1,18 @@
 # ym-nowplaying-widget
 
-A Catppuccin Mocha "now playing" SVG card for Yandex Music, embeddable in a
-GitHub profile README via `<img src>`. Built as a Vercel Python serverless
-function on top of the unofficial [`MarshalX/yandex-music-api`](https://github.com/MarshalX/yandex-music-api)
+A "now playing" SVG card for Yandex Music, embeddable in a GitHub profile
+README via `<img src>`. Built as a Vercel Python serverless function on top of
+the unofficial [`MarshalX/yandex-music-api`](https://github.com/MarshalX/yandex-music-api)
 Ynison client.
+
+Styled to match [`sm-steel/sm-steel`](https://github.com/sm-steel/sm-steel)'s
+other profile-README card blocks exactly — same 900px width, same
+outer/card padding and radius, same Catppuccin light/dark palette hex values,
+same Monaspace Neon font (embedded here as a base64 `@font-face`, pulled from
+that repo's `scripts/render-cards.mjs` font files — those cards are
+pre-rendered PNGs since their content is static; this one can't be, since it's
+live). Supports `?theme=dark|light` to match that repo's `<picture>` /
+`prefers-color-scheme` pattern for the two variants.
 
 ## Known limitation
 
@@ -25,9 +34,10 @@ though it's technically "last queued."
    (`yandex_music.Client`).
 4. Fetches the cover art server-side and embeds it as a base64 `data:` URI —
    **required**, since an SVG shown via `<img>` renders in a sandboxed image
-   context that blocks external resource fetches from inside the SVG.
-5. Renders a Catppuccin Mocha–themed SVG and returns it with a short cache
-   window (`max-age=30`).
+   context that blocks external resource fetches from inside the SVG. The
+   Monaspace Neon font (`api/fonts/*.woff2`) is embedded the same way, as a
+   base64 `@font-face`.
+5. Renders the card and returns it with a short cache window (`max-age=30`).
 
 ## Setup
 
@@ -62,7 +72,11 @@ To deploy manually instead: `vercel deploy --prod`.
 ### 4. Embed in your README
 
 ```html
-<img src="https://<your-deployment>.vercel.app/api/nowplaying" alt="Yandex Music now playing" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://<your-deployment>.vercel.app/api/nowplaying?theme=dark" />
+  <source media="(prefers-color-scheme: light)" srcset="https://<your-deployment>.vercel.app/api/nowplaying?theme=light" />
+  <img alt="Yandex Music now playing" src="https://<your-deployment>.vercel.app/api/nowplaying?theme=dark" />
+</picture>
 ```
 
 ## Local dev
