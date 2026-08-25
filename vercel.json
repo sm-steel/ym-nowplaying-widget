@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/nowplaying.py": {
+      "maxDuration": 15
+    }
+  }
+}

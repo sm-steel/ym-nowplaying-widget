@@ -1,0 +1,11 @@
+[project]
+name = "ym-nowplaying-widget"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "yandex-music[ynison]",
+]
+
+[tool.uv.sources]
+yandex-music = { git = "https://github.com/MarshalX/yandex-music-api.git", rev = "main" }

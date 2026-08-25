@@ -1,0 +1,1 @@
+yandex-music[ynison] @ git+https://github.com/MarshalX/yandex-music-api.git@main
