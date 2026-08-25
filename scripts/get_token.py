@@ -20,9 +20,12 @@ if __name__ == "__main__":
     token = client.device_auth(on_code=on_code)
     client.init()
 
+    login = client.me.account.login if client.me and client.me.account else "?"
+    expires_in = token.expires_in or 0
+
     print()
-    print(f"Logged in as: {client.me.account.login}")
+    print(f"Logged in as: {login}")
     print(f"access_token:  {token.access_token}")
-    print(f"expires_in:    {token.expires_in} sec (~{token.expires_in // 86400} days)")
+    print(f"expires_in:    {expires_in} sec (~{expires_in // 86400} days)")
     print()
     print("Set this as YM_TOKEN in Vercel — don't commit it anywhere.")
