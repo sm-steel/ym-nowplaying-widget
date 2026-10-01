@@ -159,7 +159,7 @@ def fetch_now_playing_svg(theme: str) -> str:
         return render_fallback(theme, "Nothing queued")
     playable = queue.playable_list[idx]
 
-    client = Client(TOKEN).init()
+    client = Client(TOKEN)  # no .init(): skips an account/status round-trip tracks() doesn't need
     track = client.tracks([playable.playable_id])[0]
     artist = ", ".join(a.name for a in track.artists if a.name) or "Unknown artist"
 
@@ -183,13 +183,17 @@ class handler(BaseHTTPRequestHandler):  # noqa: N801 -- Vercel requires this exa
         if theme not in PALETTES:
             theme = "dark"
 
+        # GitHub's Camo proxy times out on slow origins (~4s), and a fresh render takes 3-4s,
+        # so let Vercel's CDN serve the last good card instantly and re-render in the
+        # background. Errors are never cached, so a hiccup can't replace a good card.
         try:
             svg = fetch_now_playing_svg(theme)
+            cache_control = "public, max-age=0, s-maxage=30, stale-while-revalidate=86400"
         except Exception as e:
             svg = render_fallback(theme, f"error: {type(e).__name__}")
+            cache_control = "no-store"
 
         body = svg.encode("utf-8")
-        cache_control = "public, max-age=30, s-maxage=30, stale-while-revalidate=120"
 
         self.send_response(200)
         self.send_header("Content-Type", "image/svg+xml; charset=utf-8")

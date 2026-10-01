@@ -37,7 +37,11 @@ though it's technically "last queued."
    context that blocks external resource fetches from inside the SVG. The
    Monaspace Neon font (`api/fonts/*.woff2`) is embedded the same way, as a
    base64 `@font-face`.
-5. Renders the card and returns it with a short cache window (`max-age=30`).
+5. Renders the card and returns it with `s-maxage=30, stale-while-revalidate=86400`
+   (and `max-age=0` for browsers). A fresh render takes 3-4s, which is close to
+   the timeout of GitHub's Camo image proxy. So Vercel's CDN serves the last good
+   card instantly and re-renders it in the background. Error fallbacks are sent
+   with `no-store`, so they never replace a good cached card.
 
 ## Setup
 
