@@ -71,12 +71,25 @@ export async function deviceLogin(opts: {
 	throw new Error("login timed out: the code expired");
 }
 
+/**
+ * The file given with `--out`, or undefined without the flag. A `--out` with no path
+ * throws, so a forgotten path can't fall back to printing the token.
+ */
+export function outPath(argv: string[]): string | undefined {
+	const i = argv.indexOf("--out");
+	if (i < 0) return undefined;
+	const path = argv[i + 1];
+	if (!path || path.startsWith("--"))
+		throw new Error("--out needs a file path, e.g. --out token.txt");
+	return path;
+}
+
 if (
 	process.argv[1] &&
 	import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
-	const outIndex = process.argv.indexOf("--out");
-	const out = outIndex > 0 ? process.argv[outIndex + 1] : undefined;
+	// before the login, so a bad flag fails without minting a token
+	const out = outPath(process.argv);
 	const token = await deviceLogin({
 		onCode: (url, c) => console.log(`Open ${url} and enter code: ${c}`),
 	});

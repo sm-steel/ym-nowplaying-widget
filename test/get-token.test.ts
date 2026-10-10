@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { deviceLogin } from "../scripts/get-token.js";
+import { deviceLogin, outPath } from "../scripts/get-token.js";
 
 const res = (body: unknown, status = 200) =>
 	new Response(JSON.stringify(body), { status });
@@ -48,5 +48,19 @@ describe("deviceLogin", () => {
 		await expect(
 			deviceLogin({ fetchFn, sleep: async () => {}, onCode: () => {} }),
 		).rejects.toThrow(/access_denied/);
+	});
+});
+
+describe("outPath", () => {
+	it("returns the --out file, or undefined when the flag is absent", () => {
+		expect(outPath(["node", "get-token.ts", "--out", "t.txt"])).toBe("t.txt");
+		expect(outPath(["node", "get-token.ts"])).toBeUndefined();
+	});
+
+	it("refuses --out without a path instead of printing the token", () => {
+		expect(() => outPath(["node", "get-token.ts", "--out"])).toThrow(/--out/);
+		expect(() => outPath(["node", "get-token.ts", "--out", "--x"])).toThrow(
+			/--out/,
+		);
 	});
 });
