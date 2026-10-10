@@ -1,8 +1,16 @@
 {
 	"$schema": "https://openapi.vercel.sh/vercel.json",
 	"framework": null,
+	"outputDirectory": "public",
 	"functions": {
-		"api/recent.ts": { "maxDuration": 15 }
+		"api/recent.ts": {
+			"maxDuration": 15
+		}
 	},
-	"rewrites": [{ "source": "/api/nowplaying", "destination": "/api/recent" }]
+	"rewrites": [
+		{
+			"source": "/api/nowplaying",
+			"destination": "/api/recent"
+		}
+	]
 }

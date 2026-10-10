@@ -9,5 +9,5 @@
 		"skipLibCheck": true,
 		"types": ["node"]
 	},
-	"include": ["api", "src", "scripts", "test"]
+	"include": ["api", "src", "scripts", "test", "vitest.config.ts"]
 }
