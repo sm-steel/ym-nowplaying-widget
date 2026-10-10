@@ -1,95 +1,44 @@
 # ym-nowplaying-widget
 
-A "now playing" SVG card for Yandex Music, embeddable in a GitHub profile
-README via `<img src>`. Built as a Vercel Python serverless function on top of
-the unofficial [`MarshalX/yandex-music-api`](https://github.com/MarshalX/yandex-music-api)
-Ynison client.
+The 5 tracks you most recently played on Yandex Music, as an animated neon SVG card for your GitHub profile. Built with [@sm-steel/neon-kit](https://github.com/sm-steel/neon-kit) and served from a Vercel function.
 
-Styled to match [`sm-steel/sm-steel`](https://github.com/sm-steel/sm-steel)'s
-other profile-README card blocks exactly — same 900px width, same
-outer/card padding and radius, same Catppuccin light/dark palette hex values,
-same Monaspace Neon font (embedded here as a base64 `@font-face`, pulled from
-that repo's `scripts/render-cards.mjs` font files — those cards are
-pre-rendered PNGs since their content is static; this one can't be, since it's
-live). Supports `?theme=dark|light` to match that repo's `<picture>` /
-`prefers-color-scheme` pattern for the two variants.
-
-## Known limitation
-
-Ynison (Yandex's cross-device playback-sync protocol) does not reliably report
-play/pause state or track progress for this setup — confirmed even from the
-official desktop app, across a re-login. So this card shows **track title +
-artist + album art only**: no progress bar, no live pause indicator. It
-reflects the most recent track in the account's queue, which updates close to
-real time as tracks change — in practice this reads as "now playing" even
-though it's technically "last queued."
-
-## How it works
-
-1. `api/nowplaying.py` is a Vercel Python function (`GET /api/nowplaying`).
-2. On each request it opens a short-lived Ynison websocket session
-   (`yandex_music.ynison.simple.get_state`) to read the current track from
-   the account's queue.
-3. Resolves artist name + cover art via the regular REST client
-   (`yandex_music.Client`).
-4. Fetches the cover art server-side and embeds it as a base64 `data:` URI —
-   **required**, since an SVG shown via `<img>` renders in a sandboxed image
-   context that blocks external resource fetches from inside the SVG. The
-   Monaspace Neon font (`api/fonts/*.woff2`) is embedded the same way, as a
-   base64 `@font-face`.
-5. Renders the card and returns it with `s-maxage=30, stale-while-revalidate=86400`
-   (and `max-age=0` for browsers). A fresh render takes 3-4s, which is close to
-   the timeout of GitHub's Camo image proxy. So Vercel's CDN serves the last good
-   card instantly and re-renders it in the background. Error fallbacks are sent
-   with `no-store`, so they never replace a good cached card.
-
-## Setup
-
-### 1. Get a token
-
-```
-uv run python scripts/get_token.py
-```
-
-Opens a device-auth flow: visit the printed URL, enter the code, confirm on
-your Yandex account. Prints an `access_token` good for ~1 year. **Don't
-commit it anywhere** — it grants full account access.
-
-### 2. Set the runtime secret on Vercel
-
-```
-vercel env add YM_TOKEN production   # paste the token from step 1
-```
-
-(One-time; only needs redoing if the token is rotated.)
-
-### 3. Deploy
-
-Deploys run via GitHub Actions (`.github/workflows/deploy.yml`) on every push
-to `main`, using `vercel pull` → `vercel build --prod` → `vercel deploy
---prebuilt --prod`. The workflow needs three repo secrets — `VERCEL_TOKEN`
-(from https://vercel.com/account/tokens), `VERCEL_ORG_ID`, and
-`VERCEL_PROJECT_ID` (both from `.vercel/project.json` after `vercel link`).
-
-To deploy manually instead: `vercel deploy --prod`.
-
-### 4. Embed in your README
+## Usage
 
 ```html
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://<your-deployment>.vercel.app/api/nowplaying?theme=dark" />
-  <source media="(prefers-color-scheme: light)" srcset="https://<your-deployment>.vercel.app/api/nowplaying?theme=light" />
-  <img alt="Yandex Music now playing" src="https://<your-deployment>.vercel.app/api/nowplaying?theme=dark" />
+  <source media="(prefers-color-scheme: dark)" srcset="https://ym-nowplaying-widget.vercel.app/api/recent?theme=dark" />
+  <source media="(prefers-color-scheme: light)" srcset="https://ym-nowplaying-widget.vercel.app/api/recent?theme=light" />
+  <img alt="Yandex Music recently played" src="https://ym-nowplaying-widget.vercel.app/api/recent?theme=dark" width="100%" />
 </picture>
 ```
 
-## Local dev
+Each row shows the cover, the title (the newest one highlighted), the artists, and the day it was played (`today`, `yesterday`, `Oct 8`). Yandex's history only records days, not times. The old `/api/nowplaying` URL still works as an alias.
 
+## Configuration
+
+| Env var | | |
+|---|---|---|
+| `YM_TOKEN` | required | Yandex Music OAuth token |
+| `WIDGET_TZ` | optional | IANA timezone used for "today/yesterday" (default `Europe/Moscow`) |
+
+### Getting a token
+
+```sh
+npm run token                                 # prints the token in your terminal
+npx tsx scripts/get-token.ts --out <file>     # or writes it to a file
+vercel env add YM_TOKEN production
 ```
-uv sync
-YM_TOKEN=... uv run python -c "
-import sys; sys.path.insert(0, 'api')
-import nowplaying
-print(nowplaying.fetch_now_playing_svg())
-"
-```
+
+The script uses Yandex's device-code login: open the link it prints and enter the code. **Never commit the token.** The repo's `.gitignore` refuses files named `y0_*` or `token*.txt`.
+
+## Caching and errors
+
+Cards are cached for 60s at the CDN and served stale for up to a day while refreshing, so GitHub's image proxy never waits on Yandex. When something goes wrong (no token, Yandex error, timeout, no history), the endpoint still returns a card that reads `// SIGNAL LOST · <reason>`, and that card is never cached.
+
+## Development
+
+Tools are pinned with [mise](https://mise.jdx.dev): `mise install && npm ci`.
+
+- `npm test`, `npm run lint`, `npm run typecheck`
+- `npm run preview` renders the card locally (pass `--token-file <file>` for real data) at http://127.0.0.1:8768/
+- Pushing to `main` deploys to Vercel via `.github/workflows/deploy.yml`.
