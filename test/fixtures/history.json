@@ -1,0 +1,92 @@
+{
+	"result": {
+		"historyTabs": [
+			{
+				"date": "2026-10-10",
+				"items": [
+					{
+						"context": { "type": "album", "data": {} },
+						"tracks": [
+							{
+								"type": "track",
+								"data": {
+									"itemId": { "trackId": "1" },
+									"fullModel": {
+										"title": "ПРИЛЕТЕЛА",
+										"artists": [{ "name": "MiatriSs" }],
+										"coverUri": "avatars.yandex.net/get-music-content/1/a/%%"
+									}
+								}
+							},
+							{ "type": "track", "data": { "itemId": { "trackId": "2" } } }
+						]
+					}
+				]
+			},
+			{
+				"date": "2026-10-09",
+				"items": [
+					{
+						"context": { "type": "wave", "data": {} },
+						"tracks": [
+							{
+								"type": "track",
+								"data": {
+									"itemId": { "trackId": "3" },
+									"fullModel": {
+										"title": "Awakening",
+										"artists": [{ "name": "Normandie" }],
+										"coverUri": "avatars.yandex.net/get-music-content/2/b/%%"
+									}
+								}
+							},
+							{
+								"type": "track",
+								"data": {
+									"itemId": { "trackId": "4" },
+									"fullModel": {
+										"title": "Go",
+										"artists": [
+											{ "name": "The Chemical Brothers" },
+											{ "name": "Q-Tip" }
+										],
+										"coverUri": "avatars.yandex.net/get-music-content/3/c/%%"
+									}
+								}
+							},
+							{
+								"type": "track",
+								"data": {
+									"itemId": { "trackId": "5" },
+									"fullModel": { "title": "victory lap", "artists": [] }
+								}
+							},
+							{
+								"type": "track",
+								"data": {
+									"itemId": { "trackId": "6" },
+									"fullModel": {
+										"title": "Hard Feelings",
+										"artists": [{ "name": "Poppy" }],
+										"coverUri": "avatars.yandex.net/get-music-content/4/d/%%"
+									}
+								}
+							},
+							{
+								"type": "track",
+								"data": {
+									"itemId": { "trackId": "7" },
+									"fullModel": {
+										"title": "Sixth",
+										"artists": [{ "name": "Nobody" }],
+										"coverUri": "x/%%"
+									}
+								}
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}
