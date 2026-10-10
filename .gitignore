@@ -8,3 +8,8 @@ token.txt
 
 .vercel
 .env*
+node_modules/
+preview/out/
+# never commit Yandex tokens, even if a mistyped command writes one to a file
+y0_*
+token*.txt
